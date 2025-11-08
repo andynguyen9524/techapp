@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:techapp/Detail/article_detail_screen.dart';
 import 'package:techapp/HomeScreen/home_screen.dart';
 import 'package:techapp/Login/login_controller.dart';
 import 'package:techapp/Login/login_screen.dart';
