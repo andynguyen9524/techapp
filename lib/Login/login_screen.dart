@@ -10,11 +10,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-
   // final loginController = LoginController();
   @override
   void dispose() {
@@ -34,18 +33,92 @@ class _LoginScreenState extends State<LoginScreen> {
     ); //why context?
   }
 
-  Widget UILoginScreen() {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => LoginController()..onfetchLogin(),
+      child: Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromARGB(255, 211, 160, 242),
+                    Color.fromARGB(255, 255, 255, 255),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.center,
+                ),
+              ),
+            ),
+            BlocConsumer<LoginController, LoginState>(
+              listener: (context, state) {
+                if (state is LoginErrorState) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } else if (state is LoginSuccessState) {
+                  Navigator.pushReplacementNamed(context, '/HomeScreen');
+                }
+              },
+              builder: (context, state) => Center(
+                child: UILoginScreen(
+                  formKey: _formKey,
+                  emailController: _emailController,
+                  passwordController: _passwordController,
+                  isPasswordVisible: _isPasswordVisible,
+                  togglePasswordVisibility: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                  pressLogin: () {
+                    login();
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UILoginScreen extends StatelessWidget {
+  const UILoginScreen({
+    super.key,
+    required this.formKey,
+    required this.emailController,
+    required this.passwordController,
+    required this.isPasswordVisible,
+    required this.togglePasswordVisibility,
+    required this.pressLogin,
+  });
+  final GlobalKey<FormState> formKey;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final bool isPasswordVisible;
+  final void Function()? togglePasswordVisibility;
+  final void Function()? pressLogin;
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               TextFormField(
-                controller: _emailController,
+                controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
@@ -54,22 +127,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               TextFormField(
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
+                controller: passwordController,
+                obscureText: !isPasswordVisible,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   hintText: 'Enter your password',
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _isPasswordVisible
+                      isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
+                      // set
+                      togglePasswordVisibility!();
                     },
                   ),
                 ),
@@ -90,8 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          login();
+                        if (formKey.currentState!.validate()) {
+                          pressLogin!();
                         }
                       },
                       child: const Text('Login'),
@@ -102,44 +174,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 211, 160, 242),
-                  Color.fromARGB(255, 255, 255, 255),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.center,
-              ),
-            ),
-          ),
-          BlocListener<LoginController, LoginState>(
-            listener: (context, state) {
-              if (state is LoginErrorState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.message),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              } else if (state is LoginSuccessState) {
-                Navigator.pushReplacementNamed(context, '/HomeScreen');
-              }
-            },
-            child: Center(child: UILoginScreen()),
-          ),
-        ],
       ),
     );
   }

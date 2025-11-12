@@ -1,3 +1,5 @@
+import 'package:techapp/News/article_model.dart';
+
 abstract class HomeState {}
 
 class LoadingHomeState extends HomeState {}
@@ -11,7 +13,7 @@ class ErrorHomeState extends HomeState {
 }
 
 class ArticleLoadedState extends HomeState {
-  final List articles;
+  final Article articles;
 
   ArticleLoadedState(this.articles);
 }

@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: CircularProgressIndicator(color: Colors.blueGrey),
               );
             } else if (state is ArticleLoadedState) {
-              return NewList(context, state.articles);
+              return NewList(context, [state.articles]);
             }
             return SizedBox.shrink();
           },

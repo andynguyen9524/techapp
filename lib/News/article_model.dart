@@ -21,7 +21,7 @@ class Article extends Equatable {
       description: json['snippet'] ?? 'No Description',
 
       // API này dùng 'image_url' cho ảnh
-      urlToImage: json['image_url'] ?? '',
+      urlToImage: json['photo_url'] ?? '',
     );
   }
 

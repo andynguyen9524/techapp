@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:techapp/HomeScreen/home_state.dart';
+import 'package:techapp/News/article_model.dart';
 import 'package:techapp/News/news_repository.dart';
 
 class HomeController extends Cubit<HomeState> {
@@ -12,7 +13,7 @@ class HomeController extends Cubit<HomeState> {
         .fetchNews()
         .then((articles) {
           // You can pass articles to InfoHomeState if needed
-          emit(ArticleLoadedState(articles));
+          emit(ArticleLoadedState(articles as Article));
         })
         .catchError((error) {
           // Handle error state if necessary
