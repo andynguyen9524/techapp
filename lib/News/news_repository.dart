@@ -18,7 +18,7 @@ class NewsRepository {
   Future<List<Article>> fetchNews() async {
     // 3. Tạo URL với tham số truy vấn (query)
     // Ví dụ: tìm tin tức về "Flutter"
-    final url = Uri.parse('$_baseUrl?query=Flutter&country=US&lang=en');
+    final url = Uri.parse('$_baseUrl?query=ducati&country=US&lang=en');
 
     try {
       // 4. Thêm 'headers' vào lời gọi API

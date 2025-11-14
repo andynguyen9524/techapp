@@ -27,65 +27,75 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = _passwordController.text;
 
     // loginController.onLoginPress(email, password);
-    context.read<LoginController>().onLoginPress(
-      email,
-      password,
-    ); //why context?
+    // context.read<LoginController>().onLoginPress(
+    //   email,
+    //   password,
+    // ); //why context?
+    context.read<LoginController>().onLoginPress(email, password);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LoginController()..onfetchLogin(),
-      child: Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 211, 160, 242),
-                    Color.fromARGB(255, 255, 255, 255),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.center,
-                ),
-              ),
-            ),
-            BlocConsumer<LoginController, LoginState>(
-              listener: (context, state) {
-                if (state is LoginErrorState) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.red,
+    return Builder(
+      builder: (context) {
+        return BlocProvider(
+          create: (context) => LoginController()..onfetchLogin(),
+          child: Scaffold(
+            body: Stack(
+              fit: StackFit.expand,
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 211, 160, 242),
+                        Color.fromARGB(255, 255, 255, 255),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.center,
                     ),
-                  );
-                } else if (state is LoginSuccessState) {
-                  Navigator.pushReplacementNamed(context, '/HomeScreen');
-                }
-              },
-              builder: (context, state) => Center(
-                child: UILoginScreen(
-                  formKey: _formKey,
-                  emailController: _emailController,
-                  passwordController: _passwordController,
-                  isPasswordVisible: _isPasswordVisible,
-                  togglePasswordVisibility: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                  pressLogin: () {
-                    login();
-                  },
+                  ),
                 ),
-              ),
+                BlocConsumer<LoginController, LoginState>(
+                  listener: (context, state) {
+                    if (state is LoginErrorState) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else if (state is LoginSuccessState) {
+                      Navigator.pushReplacementNamed(context, '/HomeScreen');
+                    }
+                  },
+                  builder: (context, state) => Center(
+                    child: UILoginScreen(
+                      formKey: _formKey,
+                      emailController: _emailController,
+                      passwordController: _passwordController,
+                      isPasswordVisible: _isPasswordVisible,
+                      togglePasswordVisibility: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                      pressLogin: () {
+                        String email = _emailController.text;
+                        String password = _passwordController.text;
+                        context.read<LoginController>().onLoginPress(
+                          email,
+                          password,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
