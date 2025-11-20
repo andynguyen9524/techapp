@@ -1,53 +1,31 @@
 import 'package:techapp/News/article_model.dart';
+import 'package:equatable/equatable.dart';
 
-abstract class HomeState {}
+abstract class HomeState extends Equatable {
+  const HomeState();
+  @override
+  List<Object> get props => [];
+}
 
 class LoadingHomeState extends HomeState {}
-
-class InfoHomeState extends HomeState {}
 
 class ErrorHomeState extends HomeState {
   final String message;
 
-  ErrorHomeState(this.message);
+  const ErrorHomeState(this.message);
 }
 
 class ArticleLoadedState extends HomeState {
   final List<Article> articles;
-  final bool isLoadingMore = true;
-  final bool hasReachedMax = false;
+  final int length;
+  final bool hasReachedMax;
 
-  ArticleLoadedState({
-    required this.articles,
-    required isLoadMore,
-    required hasReachedMax,
+  const ArticleLoadedState({
+    this.articles = const [],
+    this.length = 0,
+    this.hasReachedMax = false,
   });
+  @override
+  List<Object> get props => [articles, length, hasReachedMax];
 }
-
-class FullLoadingState extends HomeState {}
-
-class NeedLoadMoreState extends HomeState {}
-
-// class ArticleLoadedState extends HomeState {
-//   final List<Article> articles;
-//   final bool hasReachedMax;
-//   final bool isLoadingMore;
-
-//   ArticleLoadedState({
-//     required this.articles,
-//     this.hasReachedMax = false,
-//     this.isLoadingMore = false,
-//   });
-
-//   ArticleLoadedState copyWith({
-//     List<Article>? articles,
-//     bool? hasReachedMax,
-//     bool? isLoadingMore,
-//   }) {
-//     return ArticleLoadedState(
-//       articles: articles ?? this.articles,
-//       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-//       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-//     );
-//   }
-// }
+// learn const in this file

@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     } else if (state is LoginSuccessState) {
-                      Navigator.pushReplacementNamed(context, '/HomeScreen');
+                      Navigator.pushReplacementNamed(context, '/HomePage');
                     }
                   },
                   builder: (context, state) => Center(

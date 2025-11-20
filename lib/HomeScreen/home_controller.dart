@@ -7,99 +7,46 @@ class HomeController extends Cubit<HomeState> {
   HomeController() : super(LoadingHomeState());
   final repository = NewsRepository();
 
-  int currentPage = 2;
-  int pageSize = 5;
-  List<Article> _currentArticles = [];
-  List<Article> totalArticles = [];
-  Future<void> onfetchHome() async {
+  final _pageSize = 3;
+  bool _isLoadingMore = false;
+  final List<Article> articles = [];
+  List<Article> _allArticles = [];
+
+  Future initArticles() async {
     emit(LoadingHomeState());
-    try {
-      final articles = await repository.fetchNews();
-      totalArticles = articles;
-      _currentArticles = totalArticles.skip(0).take(5).toList();
-      emit(
-        ArticleLoadedState(
-          articles: _currentArticles,
-          isLoadMore: true,
-          hasReachedMax: false,
-        ),
-      );
-    } catch (error) {
-      emit(ErrorHomeState(error.toString()));
-    }
-  }
-
-  Future<void> needLoadHomeMore() async {
-    await Future.delayed(const Duration(milliseconds: 900));
-    List<Article> moreArticles = totalArticles
-        .skip((currentPage - 1) * pageSize)
-        .take(pageSize)
+    _allArticles = await repository.fetchNews();
+    final newArticles = _allArticles
+        .skip(articles.length)
+        .take(_pageSize)
         .toList();
-    _currentArticles.addAll(moreArticles);
-    currentPage++;
-    if (currentPage * pageSize >= totalArticles.length) {
-      emit(
-        ArticleLoadedState(
-          articles: _currentArticles,
-          isLoadMore: false,
-          hasReachedMax: true,
-        ),
-      );
-    } else {
-      emit(
-        ArticleLoadedState(
-          articles: _currentArticles,
-          isLoadMore: true,
-          hasReachedMax: false,
-        ),
-      );
-    }
+    articles.addAll(newArticles);
+    emit(
+      ArticleLoadedState(
+        articles: articles,
+        length: articles.length,
+        hasReachedMax: newArticles.length < _pageSize,
+      ),
+    );
   }
-  // Future<void> onLoadMore() async {
-  //   await Future.delayed(const Duration(milliseconds: 500));
-  //   if (totalArticles.isNotEmpty &&
-  //       totalArticles.length > _currentArticles.length) {
-  //     _currentArticles = totalArticles
-  //         .skip((currentPage - 1) * pageSize)
-  //         .take(pageSize)
-  //         .toList();
-  //     currentPage++;
-  //     emit(
-  //       ArticleLoadedState(
-  //         articles: _currentArticles,
-  //         isLoadMore: totalArticles.length > _currentArticles.length,
-  //         hasReachedMax: totalArticles.length = _currentArticles.length,
-  //       ),
-  //     );
-  //   } else {
-  //     emit(FullLoadingState());
-  //   }
-  // }
 
-  // Future<void> onLoadMore() async {
-  //   if (state is ArticleLoadedState) {
-  //     final currentState = state as ArticleLoadedState;
-  //     if (currentState.hasReachedMax || currentState.isLoadingMore) return;
+  Future loadArticles() async {
+    if (_isLoadingMore) return;
+    _isLoadingMore = true;
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (state is! ArticleLoadedState) return;
+    final newArticles = _allArticles
+        .skip(articles.length)
+        .take(_pageSize)
+        .toList();
+    articles.addAll(newArticles);
 
-  //     emit(currentState.copyWith(isLoadingMore: true));
-
-  //     try {
-  //       _currentPage++;
-  //       final articles = await repository.fetchNews(page: _currentPage);
-
-  //       final allArticles = List<Article>.from(_currentArticles)
-  //         ..addAll(articles);
-
-  //       emit(
-  //         ArticleLoadedState(
-  //           articles: allArticles,
-  //           hasReachedMax: articles.length < 100,
-  //         ),
-  //       );
-  //       _currentArticles = allArticles;
-  //     } catch (error) {
-  //       emit(ErrorHomeState(error.toString()));
-  //     }
-  //   }
-  // }
+    emit(
+      ArticleLoadedState(
+        articles: articles,
+        length: articles.length,
+        hasReachedMax: newArticles.length < _pageSize,
+      ),
+    );
+    _isLoadingMore = false;
+  }
 }

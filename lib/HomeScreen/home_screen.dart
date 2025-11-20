@@ -30,10 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    // need Flag form Bloc !!!
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.9) {
-      context.read<HomeController>().needLoadHomeMore();
+      context.read<HomeController>().loadArticles();
     }
   }
 
@@ -42,19 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: BlocBuilder<HomeController, HomeState>(
         builder: (context, state) {
-          if (state is LoadingHomeState) {
-            return Center(
-              child: CircularProgressIndicator(color: Colors.blueGrey),
-            );
-          } else if (state is ArticleLoadedState) {
+          if (state is ArticleLoadedState) {
             return NewList(
+              state: state,
               articles: state.articles,
-              isLoadingMore: true,
-              hasReachedMax: false,
               scrollController: _scrollController,
             );
+          } else if (state is LoadingHomeState) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.0),
+              child: Center(child: CircularProgressIndicator()),
+            );
           }
-          return SizedBox.shrink();
+          return SizedBox();
         },
       ),
     );
@@ -64,39 +63,24 @@ class _HomeScreenState extends State<HomeScreen> {
 class NewList extends StatelessWidget {
   const NewList({
     super.key,
+    required this.state,
     required this.articles,
-    required this.isLoadingMore,
-    required this.hasReachedMax,
     required this.scrollController,
   });
+  final ArticleLoadedState state;
   final List<Article> articles;
-  final bool isLoadingMore;
-  final bool hasReachedMax;
   final ScrollController scrollController;
   @override
   Widget build(BuildContext context) {
-    if (articles.isEmpty) {
-      return const Center(child: Text('Không tìm thấy bài viết nào.'));
-    }
-
     return ListView.builder(
       controller: scrollController,
-      itemCount: articles.length,
+      itemCount: state.hasReachedMax ? articles.length : articles.length + 1,
       itemBuilder: (context, index) {
-        if (index >= articles.length) {
-          if (isLoadingMore) {
-            return const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          } else if (hasReachedMax) {
-            return const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: Text('Đã tải hết bài viết.')),
-            );
-          } else {
-            return SizedBox.shrink();
-          }
+        if (index == articles.length && !state.hasReachedMax) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
 
         final article = articles[index];

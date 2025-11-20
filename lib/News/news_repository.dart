@@ -11,14 +11,16 @@ class NewsRepository {
   // 2. Thêm các Headers bắt buộc của RapidAPI
   final Map<String, String> _headers = {
     // THAY THẾ KEY CỦA BẠN VÀO ĐÂY
-    'X-RapidAPI-Key': '92c708b985mshf441688a08bbcc3p143eb1jsn420f130265f2',
+    'X-RapidAPI-Key': '331400c9eamsh2e49943fcec1064p10f9c3jsn87e45fe3de9e',
     'X-RapidAPI-Host': 'real-time-news-data.p.rapidapi.com',
   };
 
   Future<List<Article>> fetchNews() async {
     // 3. Tạo URL với tham số truy vấn (query)
     // Ví dụ: tìm tin tức về "Flutter"
-    final url = Uri.parse('$_baseUrl?query=ducati&country=US&lang=en');
+    final url = Uri.parse(
+      'https://real-time-news-data.p.rapidapi.com/search?query=Football&limit=10&time_published=anytime&country=US&lang=en',
+    );
 
     try {
       // 4. Thêm 'headers' vào lời gọi API
