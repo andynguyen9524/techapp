@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:techapp/HomeScreen/home_controller.dart';
 import 'package:techapp/HomeScreen/home_state.dart';
 import 'package:techapp/Detail/article_detail_screen.dart';
-import 'package:techapp/News/article_model.dart';
+import 'package:techapp/Model/article_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

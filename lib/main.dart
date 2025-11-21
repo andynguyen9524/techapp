@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:techapp/Detail/article_detail_screen.dart';
 import 'package:techapp/HomeScreen/home_page.dart';
 import 'package:techapp/Login/login_screen.dart';
-import 'package:techapp/News/article_model.dart';
+import 'package:techapp/Model/article_model.dart';
+import 'package:techapp/Pokemon/pokemon_page.dart';
 
 void main() {
   runApp(MainApp());
@@ -15,7 +16,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/LoginScreen',
+      initialRoute: '/PokemonPage',
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/LoginScreen':
@@ -27,6 +28,8 @@ class MainApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => ArticleDetailScreen(article: args),
             );
+          case '/PokemonPage':
+            return MaterialPageRoute(builder: (context) => PokemonPage());
           default:
             return null;
         }

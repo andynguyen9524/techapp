@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:techapp/News/article_model.dart';
+import 'package:techapp/Model/article_model.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
   final Article article;

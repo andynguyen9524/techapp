@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:techapp/News/article_model.dart';
+import 'package:techapp/Model/article_model.dart';
 
 class NewsRepository {
   // === CẬP NHẬT QUAN TRỌNG ===
