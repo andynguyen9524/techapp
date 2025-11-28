@@ -5,6 +5,8 @@ import 'package:techapp/Login/login_screen.dart';
 import 'package:techapp/Model/article_model.dart';
 import 'package:techapp/Pokemon/pokemon_page.dart';
 
+import 'Pokemon/pokemon_detail_screen.dart';
+
 void main() {
   runApp(MainApp());
 }
@@ -30,6 +32,12 @@ class MainApp extends StatelessWidget {
             );
           case '/PokemonPage':
             return MaterialPageRoute(builder: (context) => PokemonPage());
+          case '/PokemonDetailScreen':
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (context) =>
+                  PokemonDetailScreen(pokemon: args['pokemon']),
+            );
           default:
             return null;
         }

@@ -15,7 +15,6 @@ class PokemonLoadSuccess extends PokemonState {
   final List<Pokemon> pokemons;
   final int length;
   final bool loadingFlag;
-
   const PokemonLoadSuccess({
     this.pokemons = const [],
     this.length = 0,
@@ -26,7 +25,25 @@ class PokemonLoadSuccess extends PokemonState {
   List<Object> get props => [pokemons, length, loadingFlag];
 }
 
+class PokemonDetail extends PokemonState {
+  final Pokemon pokemon;
+  const PokemonDetail({required this.pokemon});
+
+  @override
+  List<Object> get props => [pokemon];
+}
+
 class PokemonLoadFailure extends PokemonState {
   final String message;
   const PokemonLoadFailure({required this.message});
 }
+
+class SelectPokemonState extends PokemonState {
+  final Pokemon selectedPokemon;
+  const SelectPokemonState({required this.selectedPokemon});
+
+  @override
+  List<Object> get props => [selectedPokemon];
+}
+
+class ClearSelection extends PokemonState {}

@@ -22,17 +22,17 @@ class PokemonRepository {
     }
   }
 
-  // Future<Pokemon> fetchPokemonDetail(Pokemon pokemon) async {
-  //   try {
-  //     final response = await _dio.get(pokemon.url);
+  Future<Pokemon> fetchPokemonDetail(Pokemon pokemon) async {
+    try {
+      final response = await _dio.get(pokemon.url);
 
-  //     if (response.statusCode == 200) {
-  //       return pokemon.copyWithDetail(response.data);
-  //     } else {
-  //       throw Exception('Failed to load details');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Error fetching details: $e');
-  //   }
-  // }
+      if (response.statusCode == 200) {
+        return pokemon.copyWithDetail(response.data);
+      } else {
+        throw Exception('Failed to load details');
+      }
+    } catch (e) {
+      throw Exception('Error fetching details: $e');
+    }
+  }
 }
