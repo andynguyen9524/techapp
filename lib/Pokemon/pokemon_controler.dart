@@ -10,7 +10,6 @@ class PokemonControler extends Cubit<PokemonState> {
   bool _loadingFlag = false;
   final repository = PokemonRepository();
   List<Pokemon> currentPokemons = [];
-
   Pokemon? selectedPokemon;
 
   Future selectPokemon(Pokemon pokemon) async {
@@ -39,24 +38,22 @@ class PokemonControler extends Cubit<PokemonState> {
     );
   }
 
+  Future resetPokemon() async {
+    await Future.delayed(const Duration(milliseconds: 900));
+    currentPokemons.clear();
+    fetchPokemon();
+  }
+
   Future fetchPokemon() async {
     // emit(PokemonLoading());
     if (_loadingFlag) return;
     _loadingFlag = true;
 
-    if (currentPokemons.isEmpty) {
-      final List<Pokemon> pokemons = await repository.fetchPokemons(
-        limit: 15,
-        offset: 0,
-      );
-      currentPokemons.addAll(pokemons);
-    } else {
-      final List<Pokemon> pokemons = await repository.fetchPokemons(
-        limit: 2,
-        offset: currentPokemons.length,
-      );
-      currentPokemons.addAll(pokemons);
-    }
+    final List<Pokemon> pokemons = await repository.fetchPokemons(
+      limit: 10,
+      offset: currentPokemons.length,
+    );
+    currentPokemons.addAll(pokemons);
 
     await Future.delayed(const Duration(milliseconds: 900));
     emit(
