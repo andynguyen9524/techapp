@@ -77,6 +77,44 @@ class Pokemon {
     return int.tryParse(parts[parts.length - 2]) ?? 0;
   }
 
-  String get imageAvatarUrl =>
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png';
+  // Parse Cache
+  factory Pokemon.fromCacheJson(Map<String, dynamic> json) {
+    return Pokemon(
+      name: json['name'],
+      height: json['height'],
+      weight: json['weight'],
+      imageUrl: json['imageUrl'],
+      types: List<String>.from(json['types']),
+      stats: (json['stats'] as List? ?? [])
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList(),
+      backDefault: json['backDefault'],
+      backFemale: json['backFemale'],
+      backShiny: json['backShiny'],
+      backShinyFemale: json['backShinyFemale'],
+      frontDefault: json['frontDefault'],
+      frontFemale: json['frontFemale'],
+      frontShiny: json['frontShiny'],
+      frontShinyFemale: json['frontShinyFemale'],
+      url: json['url'],
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'height': height,
+      'weight': weight,
+      'imageUrl': imageUrl,
+      'types': types,
+      'stats': stats,
+      'backDefault': backDefault,
+      'backFemale': backFemale,
+      'backShiny': backShiny,
+      'backShinyFemale': backShinyFemale,
+      'frontDefault': frontDefault,
+      'frontFemale': frontFemale,
+      'frontShiny': frontShiny,
+      'frontShinyFemale': frontShinyFemale,
+    };
+  }
 }

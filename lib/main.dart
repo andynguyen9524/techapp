@@ -4,15 +4,14 @@ import 'package:techapp/HomeScreen/home_page.dart';
 import 'package:techapp/Login/login_screen.dart';
 import 'package:techapp/Model/article_model.dart';
 import 'package:techapp/Pokemon/pokemon_screen.dart';
-
-import 'Pokemon/pokemon_detail_screen.dart';
+import 'PokemonDetail/pokemon_detail_screen.dart';
 
 void main() {
   runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  MainApp({super.key});
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {

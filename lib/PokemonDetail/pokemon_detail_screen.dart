@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:techapp/Model/pokemon_model.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Cache ảnh
 
 class PokemonDetailScreen extends StatefulWidget {
   final Pokemon pokemon;
@@ -61,7 +62,7 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
         child: Column(
           children: [
             const SizedBox(height: 100),
-            Container(
+            SizedBox(
               height: 250,
               // decoration: BoxDecoration(
               //   color: primaryColor,
@@ -72,22 +73,14 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
               // ),
               child: Column(
                 children: [
-                  Image.network(
-                    widget.pokemon.imageUrl ?? '',
+                  CachedNetworkImage(
+                    imageUrl: widget.pokemon.imageUrl ?? '',
                     height: 200,
                     fit: BoxFit.contain,
-
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 6,
-                          backgroundColor: Color.fromARGB(255, 255, 0, 4),
-                        ),
-                      );
-                    },
-                    errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.error, size: 100, color: Colors.white),
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
                   ),
                 ],
               ),
@@ -309,12 +302,12 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-                child: Image.network(
-                  sprites[index],
+                child: CachedNetworkImage(
+                  imageUrl: sprites[index],
                   fit: BoxFit.contain,
-                  // Hiển thị icon mặc định nếu ảnh lỗi
-                  errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.catching_pokemon, color: Colors.grey),
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               );
             },

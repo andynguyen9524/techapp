@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:techapp/Model/pokemon_model.dart';
 import 'package:techapp/Model/pokemon_repository.dart';
@@ -15,9 +13,8 @@ class PokemonControler extends Cubit<PokemonState> {
   Future selectPokemon(Pokemon pokemon) async {
     // return await repository.fetchPokemonDetail(pokemon);
     try {
-      final detailedPokemon = await repository.fetchPokemonDetail(pokemon);
-      selectedPokemon = detailedPokemon;
-      emit(SelectPokemonState(selectedPokemon: detailedPokemon));
+      emit(PokemonLoading());
+      emit(SelectPokemonState(selectedPokemon: pokemon));
     } catch (e) {
       throw Exception('Error fetching details: $e');
     }
@@ -38,14 +35,8 @@ class PokemonControler extends Cubit<PokemonState> {
     );
   }
 
-  Future resetPokemon() async {
-    await Future.delayed(const Duration(milliseconds: 900));
-    currentPokemons.clear();
-    fetchPokemon();
-  }
-
   Future fetchPokemon() async {
-    // emit(PokemonLoading());
+    emit(PokemonLoading());
     if (_loadingFlag) return;
     _loadingFlag = true;
 
@@ -54,8 +45,11 @@ class PokemonControler extends Cubit<PokemonState> {
       offset: currentPokemons.length,
     );
     currentPokemons.addAll(pokemons);
-
-    await Future.delayed(const Duration(milliseconds: 900));
+    for (int i = 0; i < currentPokemons.length; i++) {
+      currentPokemons[i] = await repository.fetchPokemonDetail(
+        currentPokemons[i],
+      );
+    }
     emit(
       PokemonLoadSuccess(
         pokemons: currentPokemons,
@@ -63,7 +57,24 @@ class PokemonControler extends Cubit<PokemonState> {
         loadingFlag: true,
       ),
     );
-
+    await repository.saveLocalPockemonList(currentPokemons);
     _loadingFlag = false;
+  }
+
+  Future getPokemonFromCache() async {
+    currentPokemons.clear();
+    emit(PokemonLoading());
+    currentPokemons = await repository.getLocalPokemonList();
+    if (currentPokemons.isEmpty) {
+      fetchPokemon();
+    } else {
+      emit(
+        PokemonLoadSuccess(
+          pokemons: currentPokemons,
+          length: currentPokemons.length,
+          loadingFlag: true,
+        ),
+      );
+    }
   }
 }

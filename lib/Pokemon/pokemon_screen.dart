@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:techapp/Pokemon/pokemon_controler.dart';
-import 'package:techapp/Pokemon/pokemon_detail_screen.dart';
+import 'package:techapp/PokemonDetail/pokemon_detail_screen.dart';
 import 'package:techapp/Pokemon/pokemon_state.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Cache ảnh
 
 import '../Model/pokemon_model.dart';
 
 class PokemonScreen extends StatefulWidget {
-  PokemonScreen({super.key});
+  const PokemonScreen({super.key});
   @override
   State<PokemonScreen> createState() => _PokemonScreenState();
 }
@@ -21,7 +22,7 @@ class _PokemonScreenState extends State<PokemonScreen> {
     super.initState();
     _scrollController.addListener(_onScroll);
 
-    _controler.fetchPokemon();
+    // _controler.fetchPokemon();
   }
 
   @override
@@ -56,7 +57,7 @@ class _PokemonScreenState extends State<PokemonScreen> {
         foregroundColor: Colors.white,
       ),
       body: BlocProvider(
-        create: (context) => _controler,
+        create: (context) => _controler..getPokemonFromCache(),
         child: BlocListener<PokemonControler, PokemonState>(
           listener: (context, state) {
             if (state is SelectPokemonState) {
@@ -86,7 +87,7 @@ class _PokemonScreenState extends State<PokemonScreen> {
                 return RefreshIndicator(
                   onRefresh: () async {
                     // await Future.delayed(const Duration(milliseconds: 1000));
-                    _refreshPokemonList();
+                    // _refreshPokemonList();
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.all(12),
@@ -111,7 +112,6 @@ class _PokemonScreenState extends State<PokemonScreen> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            print('Tapped on ${pokemon.name}');
                             detailPokemon(pokemon);
                           },
                           borderRadius: BorderRadius.circular(12),
@@ -126,24 +126,12 @@ class _PokemonScreenState extends State<PokemonScreen> {
                                     color: Colors.grey[100],
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Image.network(
-                                    pokemon.imageAvatarUrl,
+                                  child: CachedNetworkImage(
+                                    imageUrl: pokemon.imageUrl ?? '',
                                     fit: BoxFit.contain,
-                                    loadingBuilder: (context, child, progress) {
-                                      if (progress == null) return child;
-                                      return const Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 6,
-                                          backgroundColor: Color.fromARGB(
-                                            255,
-                                            255,
-                                            0,
-                                            4,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder: (_, __, ___) =>
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
                                         const Icon(Icons.error),
                                   ),
                                 ),
@@ -191,9 +179,5 @@ class _PokemonScreenState extends State<PokemonScreen> {
         ),
       ),
     );
-  }
-
-  Future _refreshPokemonList() async {
-    _controler.resetPokemon();
   }
 }
