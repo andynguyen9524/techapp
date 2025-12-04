@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:techapp/Pokemon/pokemon_controler.dart';
+import 'package:techapp/Pokemon/pokemon_controller.dart';
 import 'package:techapp/PokemonDetail/pokemon_detail_screen.dart';
 import 'package:techapp/Pokemon/pokemon_state.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // Cache ảnh
@@ -15,8 +15,8 @@ class PokemonScreen extends StatefulWidget {
 
 class _PokemonScreenState extends State<PokemonScreen> {
   final ScrollController _scrollController = ScrollController();
-  final PokemonControler _controler = PokemonControler();
-  List<Pokemon> _currentPokemons = [];
+  final PokemonController _controler = PokemonController();
+
   @override
   void initState() {
     super.initState();
@@ -56,7 +56,7 @@ class _PokemonScreenState extends State<PokemonScreen> {
       ),
       body: BlocProvider(
         create: (context) => _controler..getPokemonFromCache(),
-        child: BlocListener<PokemonControler, PokemonState>(
+        child: BlocListener<PokemonController, PokemonState>(
           listener: (context, state) {
             if (state is SelectPokemonState) {
               Navigator.push(
@@ -73,11 +73,16 @@ class _PokemonScreenState extends State<PokemonScreen> {
               });
             }
           },
-          child: BlocBuilder<PokemonControler, PokemonState>(
+          child: BlocBuilder<PokemonController, PokemonState>(
             builder: (context, state) {
+              List<Pokemon> pokemons = [];
+              bool isLoadingMore = false;
+
               if (state is PokemonLoadSuccess) {
-                _currentPokemons = state.pokemons;
+                pokemons = state.pokemons;
+                isLoadingMore = state.loadingFlag;
               }
+
               return Stack(
                 children: [
                   RefreshIndicator(
@@ -87,27 +92,22 @@ class _PokemonScreenState extends State<PokemonScreen> {
                     child: ListView.separated(
                       padding: const EdgeInsets.all(12),
                       controller: _scrollController,
-                      // Nếu đang load failure hoặc success thì hiện list bình thường
-                      // Nếu muốn hiện loading ở đáy khi phân trang, ta + 1 item
-                      itemCount: _currentPokemons.length + 1,
+                      itemCount: pokemons.length + 1,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 10),
                       itemBuilder: (context, index) {
-                        // Item cuối cùng: Loading indicator cho phân trang (Paging)
-                        if (index == _currentPokemons.length) {
-                          // Chỉ hiện loading nhỏ ở dưới đáy nếu đang load thêm
-                          return (state is PokemonLoading &&
-                                  _currentPokemons.isNotEmpty)
+                        if (index == pokemons.length) {
+                          return (isLoadingMore)
                               ? const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 16.0),
                                   child: Center(
                                     child: CircularProgressIndicator(),
                                   ),
                                 )
-                              : const SizedBox.shrink(); // Ẩn đi nếu không load
+                              : const SizedBox.shrink();
                         }
 
-                        final pokemon = _currentPokemons[index];
+                        final pokemon = pokemons[index];
                         return Card(
                           elevation: 3,
                           shape: RoundedRectangleBorder(
@@ -173,25 +173,14 @@ class _PokemonScreenState extends State<PokemonScreen> {
                       },
                     ),
                   ),
-                  // --- LAYER 2: LOADING OVERLAY (Hiển thị đè lên khi Loading toàn màn hình) ---
-                  // Chỉ hiện khi chưa có dữ liệu nào (lần đầu vào app)
-                  if (state is PokemonLoading && _currentPokemons.isEmpty)
+                  if (state is PokemonLoading && pokemons.isEmpty)
                     Container(
-                      color: Colors.white, // Nền trắng che hết
+                      color: Colors.white,
                       child: const Center(child: CircularProgressIndicator()),
-                    )
-                  // Hoặc nếu muốn hiện loading mờ đè lên list cũ (Optional)
-                  else if (state is PokemonLoading &&
-                      _currentPokemons.isNotEmpty)
-                    // Bạn có thể bỏ đoạn này nếu chỉ muốn loading ở đáy list (paging)
-                    const SizedBox.shrink(),
-
-                  // --- LAYER 3: INITIAL STATE ---
+                    ),
                   if (state is PokemonInitial)
                     const Center(child: CircularProgressIndicator()),
-
-                  // --- LAYER 4: ERROR STATE ---
-                  if (state is PokemonLoadFailure && _currentPokemons.isEmpty)
+                  if (state is PokemonLoadFailure && pokemons.isEmpty)
                     Center(child: Text(state.message)),
                 ],
               );

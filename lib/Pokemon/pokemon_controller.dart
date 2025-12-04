@@ -3,8 +3,8 @@ import 'package:techapp/Model/pokemon_model.dart';
 import 'package:techapp/Model/pokemon_repository.dart';
 import 'package:techapp/Pokemon/pokemon_state.dart';
 
-class PokemonControler extends Cubit<PokemonState> {
-  PokemonControler() : super(PokemonInitial());
+class PokemonController extends Cubit<PokemonState> {
+  PokemonController() : super(PokemonInitial());
   bool _loadingFlag = false;
   final repository = PokemonRepository();
   List<Pokemon> currentPokemons = [];
@@ -36,20 +36,31 @@ class PokemonControler extends Cubit<PokemonState> {
   }
 
   Future fetchPokemon() async {
-    emit(PokemonLoading());
+    if (currentPokemons.isEmpty) {
+      emit(PokemonLoading());
+    } else {
+      emit(
+        PokemonLoadSuccess(
+          pokemons: currentPokemons,
+          length: currentPokemons.length,
+          loadingFlag: true,
+        ),
+      );
+    }
     if (_loadingFlag) return;
     _loadingFlag = true;
 
-    final List<Pokemon> pokemons = await repository.fetchPokemons(
+    final List<Pokemon> newPokemons = await repository.fetchPokemons(
       limit: 10,
       offset: currentPokemons.length,
     );
-    currentPokemons.addAll(pokemons);
-    for (int i = 0; i < currentPokemons.length; i++) {
-      currentPokemons[i] = await repository.fetchPokemonDetail(
-        currentPokemons[i],
-      );
-    }
+
+    // Tải chi tiết song song cho danh sách mới
+    final List<Pokemon> detailedPokemons = await Future.wait(
+      newPokemons.map((pokemon) => repository.fetchPokemonDetail(pokemon)),
+    );
+
+    currentPokemons.addAll(detailedPokemons);
     emit(
       PokemonLoadSuccess(
         pokemons: currentPokemons,
@@ -57,7 +68,7 @@ class PokemonControler extends Cubit<PokemonState> {
         loadingFlag: true,
       ),
     );
-    await repository.saveLocalPockemonList(currentPokemons);
+    await repository.saveLocalPokemonList(currentPokemons);
     _loadingFlag = false;
   }
 

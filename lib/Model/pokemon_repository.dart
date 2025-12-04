@@ -39,7 +39,7 @@ class PokemonRepository {
     }
   }
 
-  Future<void> saveLocalPockemonList(List<Pokemon> list) async {
+  Future<void> saveLocalPokemonList(List<Pokemon> list) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String jsonString = jsonEncode(
