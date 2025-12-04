@@ -96,7 +96,7 @@ class Pokemon {
       frontFemale: json['frontFemale'],
       frontShiny: json['frontShiny'],
       frontShinyFemale: json['frontShinyFemale'],
-      url: json['url'],
+      url: json['url'] ?? '',
     );
   }
   Map<String, dynamic> toJson() {
@@ -115,6 +115,7 @@ class Pokemon {
       'frontFemale': frontFemale,
       'frontShiny': frontShiny,
       'frontShinyFemale': frontShinyFemale,
+      'url': url,
     };
   }
 }

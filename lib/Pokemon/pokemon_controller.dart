@@ -75,7 +75,9 @@ class PokemonController extends Cubit<PokemonState> {
   Future getPokemonFromCache() async {
     currentPokemons.clear();
     emit(PokemonLoading());
-    currentPokemons = await repository.getLocalPokemonList();
+    // currentPokemons = await repository.getLocalPokemonList();
+    final localList = await repository.getLocalPokemonList();
+    currentPokemons = localList;
     if (currentPokemons.isEmpty) {
       fetchPokemon();
     } else {

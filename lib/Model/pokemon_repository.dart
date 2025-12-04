@@ -57,13 +57,11 @@ class PokemonRepository {
       final String? jsonString = prefs.getString('pokemon_list_cache');
 
       if (jsonString != null) {
-        // 1. Decode chuỗi JSON thành List<dynamic>
         final List<dynamic> jsonList = jsonDecode(jsonString);
-
-        // 2. Dùng .map để biến đổi từng phần tử JSON thành object Pokemon
-        return jsonList
+        final pokemons = jsonList
             .map((jsonItem) => Pokemon.fromCacheJson(jsonItem))
             .toList();
+        return pokemons;
       }
     } catch (e) {
       print('Lỗi đọc cache: $e');
