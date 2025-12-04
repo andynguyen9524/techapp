@@ -15,14 +15,12 @@ class PokemonScreen extends StatefulWidget {
 
 class _PokemonScreenState extends State<PokemonScreen> {
   final ScrollController _scrollController = ScrollController();
-
   final PokemonControler _controler = PokemonControler();
+  List<Pokemon> _currentPokemons = [];
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-
-    // _controler.fetchPokemon();
   }
 
   @override
@@ -77,103 +75,126 @@ class _PokemonScreenState extends State<PokemonScreen> {
           },
           child: BlocBuilder<PokemonControler, PokemonState>(
             builder: (context, state) {
-              if (state is PokemonInitial) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state is PokemonLoading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state is PokemonLoadFailure) {
-                return Center(child: Text(state.message));
-              } else if (state is PokemonLoadSuccess) {
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    // await Future.delayed(const Duration(milliseconds: 1000));
-                    // _refreshPokemonList();
-                  },
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(12),
+              if (state is PokemonLoadSuccess) {
+                _currentPokemons = state.pokemons;
+              }
+              return Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      // Logic refresh của bạn
+                    },
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(12),
+                      controller: _scrollController,
+                      // Nếu đang load failure hoặc success thì hiện list bình thường
+                      // Nếu muốn hiện loading ở đáy khi phân trang, ta + 1 item
+                      itemCount: _currentPokemons.length + 1,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        // Item cuối cùng: Loading indicator cho phân trang (Paging)
+                        if (index == _currentPokemons.length) {
+                          // Chỉ hiện loading nhỏ ở dưới đáy nếu đang load thêm
+                          return (state is PokemonLoading &&
+                                  _currentPokemons.isNotEmpty)
+                              ? const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : const SizedBox.shrink(); // Ẩn đi nếu không load
+                        }
 
-                    controller: _scrollController,
-                    itemCount: state.pokemons.length + 1,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      if (index == state.pokemons.length) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-
-                      final pokemon = state.pokemons[index];
-                      return Card(
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            detailPokemon(pokemon);
-                          },
-                          borderRadius: BorderRadius.circular(12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(8),
+                        final pokemon = _currentPokemons[index];
+                        return Card(
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () => detailPokemon(pokemon),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: CachedNetworkImage(
+                                      imageUrl: pokemon.imageUrl ?? '',
+                                      fit: BoxFit.contain,
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator(),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
+                                    ),
                                   ),
-                                  child: CachedNetworkImage(
-                                    imageUrl: pokemon.imageUrl ?? '',
-                                    fit: BoxFit.contain,
-                                    placeholder: (context, url) =>
-                                        const CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        pokemon.name.toUpperCase(),
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          pokemon.name.toUpperCase(),
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Tap for details',
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 14,
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Tap for details',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 14,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 16,
-                                  color: Colors.grey,
-                                ),
-                              ],
+                                  const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                );
-              }
-              return const SizedBox.shrink();
+                  // --- LAYER 2: LOADING OVERLAY (Hiển thị đè lên khi Loading toàn màn hình) ---
+                  // Chỉ hiện khi chưa có dữ liệu nào (lần đầu vào app)
+                  if (state is PokemonLoading && _currentPokemons.isEmpty)
+                    Container(
+                      color: Colors.white, // Nền trắng che hết
+                      child: const Center(child: CircularProgressIndicator()),
+                    )
+                  // Hoặc nếu muốn hiện loading mờ đè lên list cũ (Optional)
+                  else if (state is PokemonLoading &&
+                      _currentPokemons.isNotEmpty)
+                    // Bạn có thể bỏ đoạn này nếu chỉ muốn loading ở đáy list (paging)
+                    const SizedBox.shrink(),
+
+                  // --- LAYER 3: INITIAL STATE ---
+                  if (state is PokemonInitial)
+                    const Center(child: CircularProgressIndicator()),
+
+                  // --- LAYER 4: ERROR STATE ---
+                  if (state is PokemonLoadFailure && _currentPokemons.isEmpty)
+                    Center(child: Text(state.message)),
+                ],
+              );
             },
           ),
         ),
