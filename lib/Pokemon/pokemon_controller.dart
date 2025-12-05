@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:techapp/Model/pokemon_model.dart';
-import 'package:techapp/Model/pokemon_repository.dart';
-import 'package:techapp/Pokemon/pokemon_state.dart';
+import 'package:techapp/model/pokemon_model.dart';
+import 'package:techapp/model/pokemon_repository.dart';
+import 'package:techapp/pokemon/pokemon_state.dart';
 
 class PokemonController extends Cubit<PokemonState> {
   PokemonController() : super(PokemonInitial());

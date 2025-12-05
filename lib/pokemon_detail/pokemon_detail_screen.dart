@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:techapp/Model/pokemon_model.dart';
+import 'package:techapp/model/pokemon_model.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // Cache ảnh
 
 class PokemonDetailScreen extends StatefulWidget {

@@ -1,4 +1,4 @@
-import 'package:techapp/Model/pokemon_model.dart';
+import 'package:techapp/model/pokemon_model.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert'; // Cần để mã hóa/giải mã JSON
 import 'package:shared_preferences/shared_preferences.dart'; // Lưu trữ cục bộ
@@ -47,7 +47,7 @@ class PokemonRepository {
       );
       await prefs.setString(_listStorageKey, jsonString);
     } catch (e) {
-      print('Lỗi lưu cache list: $e');
+      // print('Lỗi lưu cache list: $e');
     }
   }
 
@@ -64,7 +64,7 @@ class PokemonRepository {
         return pokemons;
       }
     } catch (e) {
-      print('Lỗi đọc cache: $e');
+      // print('Lỗi đọc cache: $e');
     }
     return [];
   }

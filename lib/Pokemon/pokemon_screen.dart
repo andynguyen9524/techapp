@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:techapp/Pokemon/pokemon_controller.dart';
-import 'package:techapp/PokemonDetail/pokemon_detail_screen.dart';
-import 'package:techapp/Pokemon/pokemon_state.dart';
+import 'package:techapp/pokemon/pokemon_controller.dart';
+import 'package:techapp/pokemon/pokemon_state.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // Cache ảnh
+import 'package:techapp/pokemon_detail/pokemon_detail_screen.dart';
 
-import '../Model/pokemon_model.dart';
+import '../model/pokemon_model.dart';
 
 class PokemonScreen extends StatefulWidget {
   const PokemonScreen({super.key});
