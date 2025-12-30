@@ -35,6 +35,8 @@ class PokemonController extends Cubit<PokemonState> {
     );
   }
 
+  List<Pokemon> _allCachedPokemons = [];
+
   Future fetchPokemon() async {
     if (currentPokemons.isEmpty) {
       emit(PokemonLoading());
@@ -50,17 +52,47 @@ class PokemonController extends Cubit<PokemonState> {
     if (_loadingFlag) return;
     _loadingFlag = true;
 
-    final List<Pokemon> newPokemons = await repository.fetchPokemons(
-      limit: 10,
-      offset: currentPokemons.length,
-    );
+    if (currentPokemons.length < _allCachedPokemons.length) {
+      final int remaining = _allCachedPokemons.length - currentPokemons.length;
+      final int takeCount = remaining > 10 ? 10 : remaining;
+      Future.delayed(const Duration(milliseconds: 2000));
+      final nextChunk = _allCachedPokemons.sublist(
+        currentPokemons.length,
+        currentPokemons.length + takeCount,
+      );
 
-    // Tải chi tiết song song cho danh sách mới
-    final List<Pokemon> detailedPokemons = await Future.wait(
-      newPokemons.map((pokemon) => repository.fetchPokemonDetail(pokemon)),
-    );
+      currentPokemons.addAll(nextChunk);
+      _emitSuccess();
+      _loadingFlag = false;
+      return;
+    }
 
-    currentPokemons.addAll(detailedPokemons);
+    try {
+      final List<Pokemon> newPokemons = await repository.fetchPokemons(
+        limit: 10,
+        offset: currentPokemons.length,
+      );
+
+      final List<Pokemon> detailedPokemons = await Future.wait(
+        newPokemons.map((pokemon) => repository.fetchPokemonDetail(pokemon)),
+      );
+
+      // Append to both lists
+      currentPokemons.addAll(detailedPokemons);
+      _allCachedPokemons.addAll(detailedPokemons);
+
+      _emitSuccess();
+
+      // Save updated full list to disk
+      await repository.saveLocalPokemonList(_allCachedPokemons);
+    } catch (e) {
+      // Handle error appropriately
+    } finally {
+      _loadingFlag = false;
+    }
+  }
+
+  void _emitSuccess() {
     emit(
       PokemonLoadSuccess(
         pokemons: currentPokemons,
@@ -68,26 +100,16 @@ class PokemonController extends Cubit<PokemonState> {
         loadingFlag: true,
       ),
     );
-    await repository.saveLocalPokemonList(currentPokemons);
-    _loadingFlag = false;
   }
 
   Future getPokemonFromCache() async {
     currentPokemons.clear();
+    _allCachedPokemons.clear();
     emit(PokemonLoading());
-    // currentPokemons = await repository.getLocalPokemonList();
+
     final localList = await repository.getLocalPokemonList();
-    currentPokemons = localList;
-    if (currentPokemons.isEmpty) {
-      fetchPokemon();
-    } else {
-      emit(
-        PokemonLoadSuccess(
-          pokemons: currentPokemons,
-          length: currentPokemons.length,
-          loadingFlag: true,
-        ),
-      );
-    }
+    _allCachedPokemons = localList;
+
+    await fetchPokemon();
   }
 }
